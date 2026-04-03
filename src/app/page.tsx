@@ -12,13 +12,14 @@ import VerdictCard from "@/components/result-card-verdict";
 import NextMoveCard from "@/components/result-card-next-move";
 import StyleSwitcher from "@/components/style-switcher";
 
-async function captureElement(element: HTMLElement, scale: number = 2): Promise<Blob> {
+async function captureElement(element: HTMLElement): Promise<Blob> {
   await document.fonts.ready;
   const html2canvas = (await import("html2canvas")).default;
   const canvas = await html2canvas(element, {
-    scale,
+    scale: 2,
     useCORS: true,
     backgroundColor: "#0c0a09",
+    ignoreElements: (el) => el.tagName === "AUDIO",
   });
   return new Promise((resolve, reject) =>
     canvas.toBlob((b) => (b ? resolve(b) : reject(new Error("Export failed"))), "image/png")
@@ -153,7 +154,8 @@ export default function Home() {
       setExportError(null);
       const blob = await captureElement(nextMoveCardRef.current);
       await downloadBlob(blob, "next-move-card.png");
-    } catch {
+    } catch (err) {
+      console.error("Export error:", err);
       setExportError("Export failed \u2014 try long-press save instead.");
     }
   }, []);
