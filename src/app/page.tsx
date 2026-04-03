@@ -162,7 +162,8 @@ export default function Home() {
 
   const handleShareVerdict = useCallback(async () => {
     if (!verdictCardRef.current) return;
-    const enteUrl = "https://albums.ente.io/?t=ZABWMTQR9Z&utm_source=screenshot-court#Cn5PXsHxwdLiZRy8EVuwXbgU8LDc6nBzvAyVtkJNDXFv";
+    const enteUrl = "https://ente.com/?utm_source=screenshot-court";
+    const surpriseUrl = "https://albums.ente.io/?t=ZABWMTQR9Z&utm_source=screenshot-court#Cn5PXsHxwdLiZRy8EVuwXbgU8LDc6nBzvAyVtkJNDXFv";
     const tagline = "Try Screenshot Court \u2014 made by ente";
 
     try {
@@ -176,8 +177,8 @@ export default function Home() {
         .join(", ");
 
       const shareText = guiltyNames
-        ? `${guiltyNames} found GUILTY by Screenshot Court! ${result?.one_liner}\n\n${tagline}\n${enteUrl}`
-        : `Screenshot Court has spoken! ${result?.one_liner}\n\n${tagline}\n${enteUrl}`;
+        ? `${guiltyNames} found GUILTY by Screenshot Court! ${result?.one_liner}\n\n${tagline}\n${enteUrl}\n\nHere's a surprise for you \uD83C\uDF81\n${surpriseUrl}`
+        : `Screenshot Court has spoken! ${result?.one_liner}\n\n${tagline}\n${enteUrl}\n\nHere's a surprise for you \uD83C\uDF81\n${surpriseUrl}`;
 
       if (typeof navigator.share === "function" && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
@@ -188,7 +189,7 @@ export default function Home() {
         const lines = result?.participants.map(
           (p) => `${p.verdict === "GUILTY" ? "\u274C" : "\u2705"} ${p.name}: ${p.roast} ${p.sentence}`
         );
-        const text = `Screenshot Court Verdict\n\n${result?.one_liner}\n\n${lines?.join("\n")}\n\n${tagline}\n${enteUrl}`;
+        const text = `Screenshot Court Verdict\n\n${result?.one_liner}\n\n${lines?.join("\n")}\n\n${tagline}\n${enteUrl}\n\nHere's a surprise for you \uD83C\uDF81\n${surpriseUrl}`;
         await navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
@@ -389,7 +390,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="mt-auto pt-12 pb-6 flex flex-col items-center gap-2">
         <a
-          href="https://albums.ente.io/?t=ZABWMTQR9Z&utm_source=screenshot-court#Cn5PXsHxwdLiZRy8EVuwXbgU8LDc6nBzvAyVtkJNDXFv"
+          href="https://ente.com/?utm_source=screenshot-court"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 opacity-40 hover:opacity-80 transition-opacity"
