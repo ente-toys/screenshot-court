@@ -377,6 +377,17 @@ export default function Home() {
           </div>
         </div>
       )}
+      {/* Footer */}
+      <footer className="mt-auto pt-12 pb-6 text-center">
+        <a
+          href="https://ente.com/?utm_source=screenshot-court"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[10px] text-[#57534e] hover:text-accent transition-colors font-[family-name:var(--font-pixel)]"
+        >
+          MADE BY ENTE
+        </a>
+      </footer>
     </main>
   );
 }
