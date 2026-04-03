@@ -162,31 +162,40 @@ export default function Home() {
 
   const handleShareVerdict = useCallback(async () => {
     if (!verdictCardRef.current) return;
+    const enteUrl = "https://ente.com/?utm_source=screenshot-court";
+    const tagline = "Try Screenshot Court \u2014 made by ente";
+
     try {
       setExportError(null);
       const blob = await captureElement(verdictCardRef.current);
       const file = new File([blob], "screenshot-court-verdict.png", { type: "image/png" });
 
+      const guiltyNames = result?.participants
+        .filter((p) => p.verdict === "GUILTY")
+        .map((p) => p.name)
+        .join(", ");
+
+      const shareText = guiltyNames
+        ? `${guiltyNames} found GUILTY by Screenshot Court! ${result?.one_liner}\n\n${tagline}\n${enteUrl}`
+        : `Screenshot Court has spoken! ${result?.one_liner}\n\n${tagline}\n${enteUrl}`;
+
       if (typeof navigator.share === "function" && navigator.canShare?.({ files: [file] })) {
-        const guiltyNames = result?.participants
-          .filter((p) => p.verdict === "GUILTY")
-          .map((p) => p.name)
-          .join(", ");
         await navigator.share({
-          text: guiltyNames
-            ? `${guiltyNames} found GUILTY by Screenshot Court! ${result?.one_liner}`
-            : `Screenshot Court has spoken! ${result?.one_liner}`,
+          text: shareText,
           files: [file],
         });
       } else {
         const lines = result?.participants.map(
           (p) => `${p.verdict === "GUILTY" ? "\u274C" : "\u2705"} ${p.name}: ${p.roast} ${p.sentence}`
         );
-        const text = `Screenshot Court Verdict\n\n${result?.one_liner}\n\n${lines?.join("\n")}`;
+        const text = `Screenshot Court Verdict\n\n${result?.one_liner}\n\n${lines?.join("\n")}\n\n${tagline}\n${enteUrl}`;
         await navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       }
+
+      // Open ente in a new tab
+      window.open(enteUrl, "_blank", "noopener,noreferrer");
     } catch {
       setExportError("Share failed \u2014 try downloading instead.");
     }
