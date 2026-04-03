@@ -393,8 +393,9 @@ export default function Home() {
           href="https://ente.com/?utm_source=screenshot-court"
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-2 opacity-40 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-1.5 opacity-40 hover:opacity-80 transition-opacity"
         >
+          <span className="text-[10px] text-[#a8a29e] font-[family-name:var(--font-pixel)]">by</span>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/ente-logo.png" alt="ente" className="h-5" />
         </a>
