@@ -48,7 +48,7 @@ export default function Home() {
   const [appState, setAppState] = useState<AppState>("idle");
   const [result, setResult] = useState<CourtResult | null>(null);
   const [errorCode, setErrorCode] = useState<ErrorCode | null>(null);
-  const [activeVariant, setActiveVariant] = useState<string | null>(null);
+  const [activeVariant, setActiveVariant] = useState<string | null>("judge_judy");
   const [lastImages, setLastImages] = useState<CompressedImage[]>([]);
   const [exportError, setExportError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
