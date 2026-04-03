@@ -162,7 +162,7 @@ export default function Home() {
 
   const handleShareVerdict = useCallback(async () => {
     if (!verdictCardRef.current) return;
-    const enteUrl = "https://ente.com/?utm_source=screenshot-court";
+    const enteUrl = "https://albums.ente.io/?t=ZABWMTQR9Z&utm_source=screenshot-court#Cn5PXsHxwdLiZRy8EVuwXbgU8LDc6nBzvAyVtkJNDXFv";
     const tagline = "Try Screenshot Court \u2014 made by ente";
 
     try {
@@ -389,7 +389,7 @@ export default function Home() {
       {/* Footer */}
       <footer className="mt-auto pt-12 pb-6 flex flex-col items-center gap-2">
         <a
-          href="https://ente.com/?utm_source=screenshot-court"
+          href="https://albums.ente.io/?t=ZABWMTQR9Z&utm_source=screenshot-court#Cn5PXsHxwdLiZRy8EVuwXbgU8LDc6nBzvAyVtkJNDXFv"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-2 opacity-40 hover:opacity-80 transition-opacity"
