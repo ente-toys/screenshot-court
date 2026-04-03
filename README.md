@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Screenshot Court
+
+Upload a text conversation screenshot. Get a verdict, roasts, sentences, and a calm reply.
+
+Screenshot Court analyzes your text conversations with AI, identifies each participant, delivers per-person verdicts with savage roasts and creative punishments — then lets you share the results.
+
+## Features
+
+- **Multi-participant verdicts** — identifies everyone in the conversation (DMs or group chats) and judges each person individually
+- **Savage roasts & sentences** — each guilty participant gets a personalized roast and an absurdly creative punishment
+- **Voice styles** — switch between Judge Judy, Gen Z, and Corporate HR personalities with animated pixel avatars
+- **Text-to-speech** — hear the verdict read aloud via ElevenLabs AI voice (browser TTS fallback)
+- **Court sound effects** — gavel bangs, dramatic reveals, guilty buzzers, acquittal chimes
+- **Export & share** — download verdict cards as PNG or share directly via Web Share API
+- **Copy reply** — get a calm, suggested reply you can paste right into the conversation
+- **Pixel art theme** — Minecraft-style fonts, animated pixel judge, courtroom UI
+
+## Tech Stack
+
+| Layer | Choice |
+|-------|--------|
+| Framework | Next.js (App Router) |
+| Language | TypeScript (strict) |
+| Styling | Tailwind CSS |
+| AI Model | OpenAI-compatible API (GPT-4o / Azure OpenAI) |
+| Voice | ElevenLabs TTS (with browser fallback) |
+| Validation | Zod |
+| Upload | react-dropzone + browser-image-compression |
+| Export | html2canvas |
+| Fonts | Press Start 2P + Silkscreen |
 
 ## Getting Started
 
-First, run the development server:
-
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install dependencies
+npm install
+
+# Set up environment variables
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Edit `.env.local` with your keys:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```
+OPENAI_API_KEY=your-openai-or-azure-key
+OPENAI_BASE_URL=https://your-endpoint/openai/v1  # optional, for Azure
+OPENAI_MODEL=gpt-4o
+ELEVENLABS_API_KEY=your-elevenlabs-key  # optional, for AI voice
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# Run dev server
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000).
 
-To learn more about Next.js, take a look at the following resources:
+## How It Works
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1. **Upload** a screenshot of a text conversation
+2. The image is compressed and sent to `/api/analyze`
+3. A vision-capable LLM identifies participants and judges each one
+4. Results render as shareable cards with verdicts, roasts, charges, and sentences
+5. Switch voice styles to hear different personalities deliver the verdict
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## License
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+MIT
