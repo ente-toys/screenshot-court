@@ -378,14 +378,15 @@ export default function Home() {
         </div>
       )}
       {/* Footer */}
-      <footer className="mt-auto pt-12 pb-6 text-center">
+      <footer className="mt-auto pt-12 pb-6 flex flex-col items-center gap-2">
         <a
           href="https://ente.com/?utm_source=screenshot-court"
           target="_blank"
           rel="noopener noreferrer"
-          className="text-[10px] text-[#57534e] hover:text-accent transition-colors font-[family-name:var(--font-pixel)]"
+          className="flex items-center gap-2 opacity-40 hover:opacity-80 transition-opacity"
         >
-          MADE BY ENTE
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/ente-logo.png" alt="ente" className="h-5" />
         </a>
       </footer>
     </main>
