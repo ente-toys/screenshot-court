@@ -112,14 +112,7 @@ export default function VerdictCard({ result, activeVariant }: VerdictCardProps)
       await el.play();
       setSpeaking(true);
     } catch {
-      // AI voice failed — use browser TTS as fallback
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.95;
-      utterance.pitch = 0.9;
-      utterance.onend = () => setSpeaking(false);
-      utterance.onerror = () => setSpeaking(false);
-      window.speechSynthesis.speak(utterance);
-      setSpeaking(true);
+      setSpeaking(false);
     }
     setLoading(false);
   }, [speaking, displayOneLiner, result.participants, activeVariant]);
