@@ -1,11 +1,11 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { compressImage, isAcceptedType, type CompressedImage } from "@/lib/compress";
 
 interface UploadZoneProps {
-  onImageReady: (image: CompressedImage) => void;
+  onImagesReady: (images: CompressedImage[]) => void;
   onError: (message: string) => void;
   disabled?: boolean;
 }
@@ -16,33 +16,41 @@ function formatBytes(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export default function UploadZone({ onImageReady, onError, disabled }: UploadZoneProps) {
+export default function UploadZone({ onImagesReady, onError, disabled }: UploadZoneProps) {
   const [processing, setProcessing] = useState(false);
-  const [preview, setPreview] = useState<CompressedImage | null>(null);
+  const [previews, setPreviews] = useState<CompressedImage[]>([]);
 
   const handleDrop = useCallback(
     async (acceptedFiles: File[]) => {
-      const file = acceptedFiles[0];
-      if (!file) return;
-
-      if (!isAcceptedType(file.type)) {
+      const validFiles = acceptedFiles.filter((f) => isAcceptedType(f.type));
+      if (validFiles.length === 0) {
         onError("The court only accepts screenshots (PNG, JPEG, WebP).");
         return;
       }
 
       setProcessing(true);
       try {
-        const compressed = await compressImage(file);
-        setPreview(compressed);
-        onImageReady(compressed);
+        const compressed = await Promise.all(validFiles.map((f) => compressImage(f)));
+        setPreviews((prev) => [...prev, ...compressed]);
       } catch {
         onError("Failed to process image. Try a different file.");
       } finally {
         setProcessing(false);
       }
     },
-    [onImageReady, onError]
+    [onImagesReady, onError]
   );
+
+  const handleRemove = useCallback(
+    (index: number) => {
+      setPreviews((prev) => prev.filter((_, i) => i !== index));
+    },
+    []
+  );
+
+  useEffect(() => {
+    if (previews.length > 0) onImagesReady(previews);
+  }, [previews, onImagesReady]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop: handleDrop,
@@ -51,16 +59,47 @@ export default function UploadZone({ onImageReady, onError, disabled }: UploadZo
       "image/jpeg": [".jpg", ".jpeg"],
       "image/webp": [".webp"],
     },
-    maxFiles: 1,
+    multiple: true,
     disabled: disabled || processing,
   });
 
   return (
-    <div className="w-full max-w-lg mx-auto">
+    <div className="w-full max-w-lg mx-auto flex flex-col gap-4">
+      {/* Previews */}
+      {previews.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <p className="text-[10px] font-bold text-muted font-[family-name:var(--font-pixel)] uppercase tracking-wider">
+            Evidence ({previews.length} screenshot{previews.length > 1 ? "s" : ""})
+          </p>
+          <div className="flex gap-3 overflow-x-auto pb-2">
+            {previews.map((preview, i) => (
+              <div key={i} className="relative shrink-0 w-28 rounded-lg overflow-hidden bg-surface border border-surface-overlay group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={preview.previewUrl}
+                  alt={`Screenshot ${i + 1}`}
+                  className="w-full h-20 object-cover"
+                />
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleRemove(i); }}
+                  className="absolute top-1 right-1 w-5 h-5 rounded-full bg-guilty text-white text-xs flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                >
+                  x
+                </button>
+                <div className="px-1.5 py-1 text-[9px] text-muted text-center">
+                  {formatBytes(preview.compressedSize)}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Drop zone */}
       <div
         {...getRootProps()}
         className={`
-          relative border-2 border-dashed rounded-xl p-8 text-center
+          relative border-2 border-dashed rounded-xl p-6 text-center
           transition-all duration-200 cursor-pointer
           font-[family-name:var(--font-pixel-body)]
           ${isDragActive
@@ -73,45 +112,27 @@ export default function UploadZone({ onImageReady, onError, disabled }: UploadZo
         <input {...getInputProps()} />
 
         {processing ? (
-          <div className="flex flex-col items-center gap-3 py-4">
+          <div className="flex flex-col items-center gap-3 py-2">
             <div className="w-8 h-8 border-2 border-accent border-t-transparent rounded-full animate-spin" />
             <p className="text-muted text-sm">Processing evidence...</p>
           </div>
-        ) : preview ? (
-          <div className="flex flex-col items-center gap-4">
-            <div className="relative w-full max-w-xs mx-auto rounded-xl overflow-hidden bg-surface">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={preview.previewUrl}
-                alt="Screenshot preview"
-                className="w-full h-auto max-h-64 object-contain"
-              />
-            </div>
-            <div className="flex gap-4 text-xs text-muted">
-              <span>{preview.width} x {preview.height}</span>
-              <span>{formatBytes(preview.compressedSize)}</span>
-            </div>
-            <p className="text-xs text-muted">
-              Drop another screenshot to replace
-            </p>
-          </div>
         ) : (
-          <div className="flex flex-col items-center gap-3 py-4">
-            <div className="text-4xl opacity-60">
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="flex flex-col items-center gap-2 py-2">
+            <div className="text-3xl opacity-60">
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
                 <polyline points="17 8 12 3 7 8" />
                 <line x1="12" y1="3" x2="12" y2="15" />
               </svg>
             </div>
-            <div>
-              <p className="font-bold text-foreground font-[family-name:var(--font-pixel)] text-xs">
-                SUBMIT EVIDENCE
-              </p>
-              <p className="text-xs text-muted mt-2">
-                Drop a screenshot here (PNG, JPEG, WebP)
-              </p>
-            </div>
+            <p className="font-bold text-foreground font-[family-name:var(--font-pixel)] text-xs">
+              {previews.length > 0 ? "ADD MORE" : "SUBMIT EVIDENCE"}
+            </p>
+            <p className="text-xs text-muted">
+              {previews.length > 0
+                ? "Drop more screenshots to add to the case"
+                : "Drop one or more screenshots (PNG, JPEG, WebP)"}
+            </p>
           </div>
         )}
       </div>

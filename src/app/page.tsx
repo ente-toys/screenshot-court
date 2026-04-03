@@ -48,7 +48,7 @@ export default function Home() {
   const [result, setResult] = useState<CourtResult | null>(null);
   const [errorCode, setErrorCode] = useState<ErrorCode | null>(null);
   const [activeVariant, setActiveVariant] = useState<string | null>(null);
-  const [lastImage, setLastImage] = useState<CompressedImage | null>(null);
+  const [lastImages, setLastImages] = useState<CompressedImage[]>([]);
   const [exportError, setExportError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
 
@@ -62,12 +62,12 @@ export default function Home() {
     setResult(null);
     setErrorCode(null);
     setActiveVariant(null);
-    setLastImage(null);
+    setLastImages([]);
     setExportError(null);
     setCopied(false);
   }, []);
 
-  const submitAnalysis = useCallback(async (image: CompressedImage) => {
+  const submitAnalysis = useCallback(async (images: CompressedImage[]) => {
     requestIdRef.current += 1;
     const thisRequestId = requestIdRef.current;
 
@@ -77,7 +77,9 @@ export default function Home() {
     setExportError(null);
 
     const formData = new FormData();
-    formData.append("image", image.file);
+    for (const img of images) {
+      formData.append("images", img.file);
+    }
 
     try {
       const response = await fetch("/api/analyze", {
@@ -112,8 +114,8 @@ export default function Home() {
     }
   }, []);
 
-  const handleImageReady = useCallback((image: CompressedImage) => {
-    setLastImage(image);
+  const handleImagesReady = useCallback((images: CompressedImage[]) => {
+    setLastImages(images);
     setAppState("previewing");
   }, []);
 
@@ -124,15 +126,15 @@ export default function Home() {
   }, []);
 
   const handleSendToCourt = useCallback(() => {
-    if (lastImage) {
+    if (lastImages.length > 0) {
       playTripleBang();
-      submitAnalysis(lastImage);
+      submitAnalysis(lastImages);
     }
-  }, [lastImage, submitAnalysis]);
+  }, [lastImages, submitAnalysis]);
 
   const handleRetry = useCallback(() => {
-    if (lastImage) submitAnalysis(lastImage);
-  }, [lastImage, submitAnalysis]);
+    if (lastImages.length > 0) submitAnalysis(lastImages);
+  }, [lastImages, submitAnalysis]);
 
   const handleExportVerdict = useCallback(async () => {
     if (!verdictCardRef.current) return;
@@ -280,7 +282,7 @@ export default function Home() {
       {(appState === "idle" || appState === "previewing") && (
         <div className="w-full max-w-lg">
           <UploadZone
-            onImageReady={handleImageReady}
+            onImagesReady={handleImagesReady}
             onError={handleUploadError}
           />
           {appState === "previewing" && (

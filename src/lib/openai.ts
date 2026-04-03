@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import type { ChatCompletionContentPart } from "openai/resources/chat/completions";
 import {
   courtResultSchema,
   normalizeResult,
@@ -10,17 +11,18 @@ import {
 const SYSTEM_PROMPT = `You are Screenshot Court — a sharp, rational judge who delivers verdicts in the most entertaining way possible.
 
 THINKING (do this first, silently):
-- Read the conversation carefully. Understand the full context — who started it, who escalated, who's being reasonable, who's being shady.
-- Consider nuance: sometimes both sides have a point. Sometimes one person is clearly wrong. Sometimes the "nice" person is actually being passive-aggressive.
-- Think about what a wise, perceptive friend would say if they read this conversation — someone who sees through BS but also gives people credit where it's due.
+- Read ALL the screenshots carefully. They may be parts of the same conversation — piece them together chronologically.
+- Identify each unique participant across all screenshots. The same person may appear in multiple screenshots — match them by name, bubble color, or side (left/right).
+- Understand the full context — who started it, who escalated, who's being reasonable, who's being shady.
+- Consider nuance: sometimes both sides have a point. Sometimes one person is clearly wrong.
 
 JUDGING RULES:
-- Base verdicts ONLY on visible evidence. No assumptions about what happened off-screen.
+- Base verdicts ONLY on visible evidence across ALL provided screenshots. No assumptions about what happened off-screen.
 - Be rational and fair. Don't just punish the loudest person — look at who actually caused the problem.
 - If someone is manipulative, dismissive, or clearly in the wrong: GUILTY.
 - If someone is being reasonable, honest, or just caught in someone else's mess: NOT_GUILTY.
 - Judge EACH participant individually. A group chat can have multiple guilty people for different reasons.
-- If the screenshot is unreadable or not a conversation, return NEED_MORE_CONTEXT.
+- If the screenshots are unreadable or not a conversation, return NEED_MORE_CONTEXT.
 - Never use hate speech, slurs, or identity-based insults.
 
 DELIVERY RULES (how you say it):
@@ -33,11 +35,14 @@ DELIVERY RULES (how you say it):
 
 Return valid JSON only. No markdown, no code fences, no extra text.`;
 
-const USER_PROMPT = `Analyze this screenshot and return a JSON object with exactly these fields:
+const USER_PROMPT_SINGLE = `Analyze this screenshot and return a JSON object with exactly these fields:`;
 
+const USER_PROMPT_MULTI = `Analyze these screenshots — they are parts of the same conversation. Piece them together chronologically and treat them as one continuous chat. Return a JSON object with exactly these fields:`;
+
+const USER_PROMPT_FIELDS = `
 - one_liner: a savage, punchy summary of the whole situation. Make it quotable and shareable. Max 140 chars
 - chat_type: "dm" if 2 people, "group" if 3+
-- participants: array of objects, one per person in the conversation. Each has:
+- participants: array of objects, one per person in the conversation (deduplicate across screenshots). Each has:
   - name: who they are. Use visible names if shown. If no names are visible, use "Sender" for the person whose messages are on the right side (outgoing) and "Receiver" for messages on the left side (incoming). For group chats without names, use "Sender", "Person 2", "Person 3", etc. Max 60 chars
   - verdict: "GUILTY", "NOT_GUILTY", or "NEED_MORE_CONTEXT"
   - roast: a SAVAGE, personal roast of this participant. Go hard — be specific, sarcastic, and brutal. Reference their exact behavior. Make it sting. Max 140 chars. NOT_GUILTY people get a backhanded compliment or light drag.
@@ -51,13 +56,13 @@ const USER_PROMPT = `Analyze this screenshot and return a JSON object with exact
   - one_liner: max 200 chars
   - reply_text: max 400 chars
 
-Go hard on the roasts. Be ruthlessly funny. Do not speculate beyond the screenshot.`;
+Go hard on the roasts. Be ruthlessly funny. Do not speculate beyond the screenshots.`;
+
+type ImageInput = { buffer: Buffer; mimeType: string };
 
 function getClient(): OpenAI {
   const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error("OPENAI_API_KEY not configured");
-  }
+  if (!apiKey) throw new Error("OPENAI_API_KEY not configured");
   return new OpenAI({
     apiKey,
     baseURL: process.env.OPENAI_BASE_URL || undefined,
@@ -70,34 +75,47 @@ function getModel(): string {
 
 async function callModel(
   client: OpenAI,
-  imageBase64: string,
-  mimeType: string
+  images: ImageInput[]
 ): Promise<string> {
+  const isMulti = images.length > 1;
+  const promptText = (isMulti ? USER_PROMPT_MULTI : USER_PROMPT_SINGLE) + USER_PROMPT_FIELDS;
+
+  const content: ChatCompletionContentPart[] = images.map((img, i) => ({
+    type: "image_url" as const,
+    image_url: {
+      url: `data:${img.mimeType};base64,${img.buffer.toString("base64")}`,
+      detail: "high" as const,
+    },
+    ...(isMulti ? {} : {}),
+  }));
+
+  // Add label text before each image if multiple
+  const labeledContent: ChatCompletionContentPart[] = [];
+  if (isMulti) {
+    for (let i = 0; i < images.length; i++) {
+      labeledContent.push({
+        type: "text" as const,
+        text: `Screenshot ${i + 1} of ${images.length}:`,
+      });
+      labeledContent.push(content[i]);
+    }
+  } else {
+    labeledContent.push(content[0]);
+  }
+
+  labeledContent.push({ type: "text" as const, text: promptText });
+
   const response = await client.chat.completions.create({
     model: getModel(),
     messages: [
       { role: "system", content: SYSTEM_PROMPT },
-      {
-        role: "user",
-        content: [
-          {
-            type: "image_url",
-            image_url: {
-              url: `data:${mimeType};base64,${imageBase64}`,
-              detail: "high",
-            },
-          },
-          { type: "text", text: USER_PROMPT },
-        ],
-      },
+      { role: "user", content: labeledContent },
     ],
     max_tokens: 2500,
   });
 
   const text = response.choices[0]?.message?.content;
-  if (!text) {
-    throw new Error("No text in model response");
-  }
+  if (!text) throw new Error("No text in model response");
   return text;
 }
 
@@ -109,7 +127,6 @@ function tryParseAndValidate(
     if (cleaned.startsWith("```")) {
       cleaned = cleaned.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
     }
-
     const parsed = JSON.parse(cleaned);
     const validated = courtResultSchema.parse(parsed);
     return { ok: true, data: validated };
@@ -133,38 +150,30 @@ async function checkModeration(
     result.style_variants.genz.one_liner,
     result.style_variants.genz.reply_text,
   ];
-
   for (const p of result.participants) {
     texts.push(...p.charges, ...p.evidence);
   }
-
-  const moderation = await client.moderations.create({
-    input: texts.join("\n"),
-  });
+  const moderation = await client.moderations.create({ input: texts.join("\n") });
   return moderation.results.some((r) => r.flagged);
 }
 
-export async function analyzeScreenshot(
-  imageBuffer: Buffer,
-  mimeType: string
+export async function analyzeScreenshots(
+  images: ImageInput[]
 ): Promise<CourtResult> {
   const client = getClient();
-  const imageBase64 = imageBuffer.toString("base64");
 
-  // Attempt 1
   let rawText: string;
   try {
-    rawText = await callModel(client, imageBase64, mimeType);
+    rawText = await callModel(client, images);
   } catch {
     throw new Error("MODEL_FAILURE");
   }
 
   let parseResult = tryParseAndValidate(rawText);
 
-  // Retry once on parse/validation failure
   if (!parseResult.ok) {
     try {
-      rawText = await callModel(client, imageBase64, mimeType);
+      rawText = await callModel(client, images);
     } catch {
       throw new Error("MODEL_FAILURE");
     }
@@ -175,9 +184,7 @@ export async function analyzeScreenshot(
       try {
         let cleaned = rawText.trim();
         if (cleaned.startsWith("```")) {
-          cleaned = cleaned
-            .replace(/^```(?:json)?\n?/, "")
-            .replace(/\n?```$/, "");
+          cleaned = cleaned.replace(/^```(?:json)?\n?/, "").replace(/\n?```$/, "");
         }
         JSON.parse(cleaned);
         return createFallbackPayload("fallback_validation");
@@ -189,18 +196,12 @@ export async function analyzeScreenshot(
 
   const normalized = normalizeResult(parseResult.data);
 
-  // Moderation check
   try {
     const flagged = await checkModeration(client, normalized);
-    if (flagged) {
-      return createFallbackPayload("fallback_moderation");
-    }
+    if (flagged) return createFallbackPayload("fallback_moderation");
   } catch {
-    // If moderation API fails, still return the result
+    // moderation failed, continue
   }
 
-  return {
-    ...normalized,
-    meta: { source: "model" },
-  };
+  return { ...normalized, meta: { source: "model" } };
 }
