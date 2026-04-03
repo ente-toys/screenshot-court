@@ -25,6 +25,9 @@ export const metadata: Metadata = {
   title: "Screenshot Court",
   description:
     "Upload a screenshot of a text conversation. Get a verdict, charges, and a calm reply.",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export const viewport: Viewport = {
