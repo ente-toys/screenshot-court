@@ -162,7 +162,7 @@ export default function Home() {
 
   const handleShareVerdict = useCallback(async () => {
     if (!verdictCardRef.current) return;
-    const enteUrl = "https://ente.com/?utm_source=screenshot-court";
+    const appUrl = "https://screenshotcourt.com/";
     const surpriseUrl = "https://albums.ente.io/?t=ZABWMTQR9Z&utm_source=screenshot-court#Cn5PXsHxwdLiZRy8EVuwXbgU8LDc6nBzvAyVtkJNDXFv";
     const tagline = "Try Screenshot Court \u2014 made by ente";
 
@@ -177,8 +177,8 @@ export default function Home() {
         .join(", ");
 
       const shareText = guiltyNames
-        ? `${guiltyNames} found GUILTY by Screenshot Court! ${result?.one_liner}\n\n${tagline}\n${enteUrl}\n\nHere's a surprise for you \uD83C\uDF81\n${surpriseUrl}`
-        : `Screenshot Court has spoken! ${result?.one_liner}\n\n${tagline}\n${enteUrl}\n\nHere's a surprise for you \uD83C\uDF81\n${surpriseUrl}`;
+        ? `${guiltyNames} found GUILTY by Screenshot Court! ${result?.one_liner}\n\n${tagline}\n${appUrl}\n\nHere's a surprise for you \uD83C\uDF81\n${surpriseUrl}`
+        : `Screenshot Court has spoken! ${result?.one_liner}\n\n${tagline}\n${appUrl}\n\nHere's a surprise for you \uD83C\uDF81\n${surpriseUrl}`;
 
       if (typeof navigator.share === "function" && navigator.canShare?.({ files: [file] })) {
         await navigator.share({
@@ -189,14 +189,14 @@ export default function Home() {
         const lines = result?.participants.map(
           (p) => `${p.verdict === "GUILTY" ? "\u274C" : "\u2705"} ${p.name}: ${p.roast} ${p.sentence}`
         );
-        const text = `Screenshot Court Verdict\n\n${result?.one_liner}\n\n${lines?.join("\n")}\n\n${tagline}\n${enteUrl}\n\nHere's a surprise for you \uD83C\uDF81\n${surpriseUrl}`;
+        const text = `Screenshot Court Verdict\n\n${result?.one_liner}\n\n${lines?.join("\n")}\n\n${tagline}\n${appUrl}\n\nHere's a surprise for you \uD83C\uDF81\n${surpriseUrl}`;
         await navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
       }
 
       // Open ente in a new tab
-      window.open(enteUrl, "_blank", "noopener,noreferrer");
+      window.open(appUrl, "_blank", "noopener,noreferrer");
     } catch {
       setExportError("Share failed \u2014 try downloading instead.");
     }
