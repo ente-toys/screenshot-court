@@ -290,6 +290,24 @@ export default function Home() {
         </p>
       </header>
 
+      {/* Instructions */}
+      {appState === "idle" && (
+        <div className="w-full max-w-md mb-8 flex flex-col gap-3 font-[family-name:var(--font-pixel-body)]">
+          <div className="flex items-start gap-3">
+            <span className="shrink-0 w-7 h-7 rounded-lg bg-wood-dark flex items-center justify-center text-accent font-[family-name:var(--font-pixel)] text-[10px]">1</span>
+            <p className="text-sm text-muted pt-0.5">Upload one or more screenshots of a text conversation</p>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="shrink-0 w-7 h-7 rounded-lg bg-wood-dark flex items-center justify-center text-accent font-[family-name:var(--font-pixel)] text-[10px]">2</span>
+            <p className="text-sm text-muted pt-0.5">The court analyzes the chat and judges each participant</p>
+          </div>
+          <div className="flex items-start gap-3">
+            <span className="shrink-0 w-7 h-7 rounded-lg bg-wood-dark flex items-center justify-center text-accent font-[family-name:var(--font-pixel)] text-[10px]">3</span>
+            <p className="text-sm text-muted pt-0.5">Get roasts, sentences, and a calm reply you can actually send</p>
+          </div>
+        </div>
+      )}
+
       {/* Upload */}
       {(appState === "idle" || appState === "previewing") && (
         <div className="w-full max-w-lg">
