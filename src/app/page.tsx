@@ -196,7 +196,7 @@ export default function Home() {
       }
 
       // Open ente in a new tab
-      window.open(appUrl, "_blank", "noopener,noreferrer");
+      window.open("https://ente.com/?utm_source=screenshot-court", "_blank", "noopener,noreferrer");
     } catch {
       setExportError("Share failed \u2014 try downloading instead.");
     }
