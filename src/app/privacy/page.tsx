@@ -14,9 +14,9 @@ export default function Privacy() {
         <section>
           <h2 className="text-foreground font-bold mb-2">Third-party services</h2>
           <ul className="list-disc pl-5 flex flex-col gap-1">
-            <li><strong>OpenAI / Azure OpenAI</strong> — processes your screenshot to generate verdicts. Subject to <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">OpenAI&apos;s Privacy Policy</a>.</li>
-            <li><strong>ElevenLabs</strong> — text-to-speech for verdict audio (when available). Subject to <a href="https://elevenlabs.io/privacy" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">ElevenLabs&apos; Privacy Policy</a>.</li>
-            <li><strong>Vercel</strong> — hosting and serverless functions. Subject to <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">Vercel&apos;s Privacy Policy</a>.</li>
+            <li><strong>OpenAI / Azure OpenAI</strong> — processes your screenshot to generate verdicts. Subject to <a href="https://openai.com/policies/privacy-policy" target="_blank" rel="noopener" className="text-accent hover:underline">OpenAI&apos;s Privacy Policy</a>.</li>
+            <li><strong>ElevenLabs</strong> — text-to-speech for verdict audio (when available). Subject to <a href="https://elevenlabs.io/privacy" target="_blank" rel="noopener" className="text-accent hover:underline">ElevenLabs&apos; Privacy Policy</a>.</li>
+            <li><strong>Vercel</strong> — hosting and serverless functions. Subject to <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener" className="text-accent hover:underline">Vercel&apos;s Privacy Policy</a>.</li>
           </ul>
         </section>
 
@@ -42,7 +42,7 @@ export default function Privacy() {
 
         <section>
           <h2 className="text-foreground font-bold mb-2">Contact</h2>
-          <p>Questions? Reach us at <a href="https://ente.com" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">ente.com</a>.</p>
+          <p>Questions? Reach us at <a href="https://ente.com" target="_blank" rel="noopener" className="text-accent hover:underline">ente.com</a>.</p>
         </section>
       </div>
 

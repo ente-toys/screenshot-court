@@ -42,7 +42,7 @@ export default function Terms() {
 
         <section>
           <h2 className="text-foreground font-bold mb-2">Contact</h2>
-          <p>Questions? Reach us at <a href="https://ente.com" target="_blank" rel="noopener noreferrer" className="text-accent hover:underline">ente.com</a>.</p>
+          <p>Questions? Reach us at <a href="https://ente.com" target="_blank" rel="noopener" className="text-accent hover:underline">ente.com</a>.</p>
         </section>
       </div>
 

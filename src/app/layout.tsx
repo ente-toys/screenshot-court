@@ -1,24 +1,31 @@
 import type { Metadata, Viewport } from "next";
-import { Geist } from "next/font/google";
-import { Press_Start_2P } from "next/font/google";
-import { Silkscreen } from "next/font/google";
+import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = Geist({
+const geistSans = localFont({
+  src: [
+    { path: "../fonts/Geist-Regular.ttf", weight: "400" },
+    { path: "../fonts/Geist-Medium.ttf", weight: "500" },
+    { path: "../fonts/Geist-SemiBold.ttf", weight: "600" },
+    { path: "../fonts/Geist-Bold.ttf", weight: "700" },
+  ],
   variable: "--font-geist-sans",
-  subsets: ["latin"],
+  display: "swap",
 });
 
-const pressStart = Press_Start_2P({
+const pressStart = localFont({
+  src: "../fonts/PressStart2P-Regular.ttf",
   variable: "--font-pixel",
-  subsets: ["latin"],
-  weight: "400",
+  display: "swap",
 });
 
-const silkscreen = Silkscreen({
+const silkscreen = localFont({
+  src: [
+    { path: "../fonts/Silkscreen-Regular.ttf", weight: "400" },
+    { path: "../fonts/Silkscreen-Bold.ttf", weight: "700" },
+  ],
   variable: "--font-pixel-body",
-  subsets: ["latin"],
-  weight: ["400", "700"],
+  display: "swap",
 });
 
 export const metadata: Metadata = {

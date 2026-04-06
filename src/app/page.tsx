@@ -163,7 +163,7 @@ export default function Home() {
   const handleShareVerdict = useCallback(async () => {
     if (!verdictCardRef.current) return;
     const appUrl = "https://screenshotcourt.com/";
-    const surpriseUrl = "https://albums.ente.io/?t=ZABWMTQR9Z&utm_source=screenshot-court#Cn5PXsHxwdLiZRy8EVuwXbgU8LDc6nBzvAyVtkJNDXFv";
+    const surpriseUrl = "https://albums.ente.io/?t=ZABWMTQR9Z#Cn5PXsHxwdLiZRy8EVuwXbgU8LDc6nBzvAyVtkJNDXFv";
     const tagline = "Try Screenshot Court \u2014 made by ente";
 
     try {
@@ -196,7 +196,7 @@ export default function Home() {
       }
 
       // Open ente in a new tab
-      window.open("https://ente.com/?utm_source=screenshot-court", "_blank", "noopener,noreferrer");
+      window.open("https://ente.com/", "_blank", "noopener");
     } catch {
       setExportError("Share failed \u2014 try downloading instead.");
     }
@@ -408,9 +408,9 @@ export default function Home() {
       {/* Footer */}
       <footer className="mt-auto pt-12 pb-6 flex flex-col items-center gap-3">
         <a
-          href="https://ente.com/?utm_source=screenshot-court"
+          href="https://ente.com/"
           target="_blank"
-          rel="noopener noreferrer"
+          rel="noopener"
           className="flex items-center gap-1.5 opacity-40 hover:opacity-80 transition-opacity"
         >
           <span className="text-[10px] text-[#a8a29e] font-[family-name:var(--font-pixel)]">by</span>
