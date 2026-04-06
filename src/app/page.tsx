@@ -406,7 +406,7 @@ export default function Home() {
         </div>
       )}
       {/* Footer */}
-      <footer className="mt-auto pt-12 pb-6 flex flex-col items-center gap-2">
+      <footer className="mt-auto pt-12 pb-6 flex flex-col items-center gap-3">
         <a
           href="https://ente.com/?utm_source=screenshot-court"
           target="_blank"
@@ -417,6 +417,11 @@ export default function Home() {
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/ente-logo.png" alt="ente" className="h-5" />
         </a>
+        <div className="flex gap-3">
+          <a href="/privacy" className="text-[9px] text-[#57534e] hover:text-[#a8a29e] transition-colors font-[family-name:var(--font-pixel)]">PRIVACY</a>
+          <span className="text-[9px] text-[#3f3a36]">{"\u2022"}</span>
+          <a href="/terms" className="text-[9px] text-[#57534e] hover:text-[#a8a29e] transition-colors font-[family-name:var(--font-pixel)]">TERMS</a>
+        </div>
       </footer>
     </main>
   );
